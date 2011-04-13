@@ -28,6 +28,7 @@ public class Config {
 	final boolean logFire;
 	final boolean logLeavesDecay;
 	final boolean logChestAccess;
+	final boolean logKills;
 	final String logTNTExplosionsAs;
 	final String logCreeperExplosionsAs;
 	final String logFireballExplosionsAs;
@@ -83,6 +84,8 @@ public class Config {
 			config.setProperty("logChestAccess", false);
 		if (!keys.contains("logLeavesDecay"))
 			config.setProperty("logLeavesDecay", false);
+		if (!keys.contains("logKills"))
+			config.setProperty("logKills", false);
 		if (!keys.contains("logTNTExplosionsAs"))
 			config.setProperty("logTNTExplosionsAs", "TNT");
 		if (!keys.contains("logCreeperExplosionsAs"))
@@ -118,6 +121,7 @@ public class Config {
 		logFire = config.getBoolean("logFire", false);
 		logChestAccess = config.getBoolean("logChestAccess", false);
 		logLeavesDecay = config.getBoolean("logLeavesDecay", false);
+		logKills = config.getBoolean("logKills", false);
 		logTNTExplosionsAs = config.getString("logTNTExplosionsAs");
 		logCreeperExplosionsAs = config.getString("logCreeperExplosionsAs");
 		logFireballExplosionsAs = config.getString("logFireballExplosionsAs");

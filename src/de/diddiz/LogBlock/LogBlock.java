@@ -16,7 +16,9 @@ import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Fireball;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.Event;
@@ -28,6 +30,8 @@ import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityListener;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
@@ -103,6 +107,7 @@ public class LogBlock extends JavaPlugin
 		if (config.keepLogDays >= 0)
 			new Thread(new ClearLog(this)).start();
 		LBBlockListener lbBlockListener = new LBBlockListener();
+		LBEntityListener lbEntityListener = new LBEntityListener();
 		LBPlayerListener lbPlayerListener = new LBPlayerListener();
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvent(Type.PLAYER_INTERACT, new LBToolPlayerListener(), Event.Priority.Normal, this);
@@ -117,9 +122,11 @@ public class LogBlock extends JavaPlugin
 		if (config.logFire)
 			pm.registerEvent(Type.BLOCK_BURN, lbBlockListener, Event.Priority.Monitor, this);
 		if (config.logExplosions) 
-			pm.registerEvent(Type.ENTITY_EXPLODE, new LBEntityListener(), Event.Priority.Monitor, this);
+			pm.registerEvent(Type.ENTITY_EXPLODE, lbEntityListener, Event.Priority.Monitor, this);
 		if (config.logLeavesDecay)
 			pm.registerEvent(Type.LEAVES_DECAY, lbBlockListener, Event.Priority.Monitor, this);
+		if (config.logKills)
+			pm.registerEvent(Type.ENTITY_DAMAGE, lbEntityListener, Event.Priority.Monitor, this);
 		consumer = new Consumer(this);
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, consumer, config.delay * 20, config.delay * 20);
 		log.info("Logblock v" + getDescription().getVersion() + " enabled.");
@@ -424,6 +431,13 @@ public class LogBlock extends JavaPlugin
 					if (!dbm.getTables(null, null, table + "-chest", null).next())
 						return false;
 				}
+				if (config.logKills && !dbm.getTables(null, null, table + "-kills", null).next()) {
+					log.log(Level.INFO, "[LogBlock] Crating table " + table + "-kills.");
+					state.execute("CREATE TABLE `" + table + "-kills` (id INT UNSIGNED NOT NULL AUTO_INCREMENT, date DATETIME NOT NULL, killer SMALLINT UNSIGNED, victim SMALLINT UNSIGNED NOT NULL, weapon SMALLINT UNSIGNED NOT NULL, PRIMARY KEY (id));");
+					if (!dbm.getTables(null, null, table + "-kills", null).next())
+						return false;
+					state.execute("INSERT IGNORE INTO `lb-players` (playername) VALUES ('Creeper'), ('Ghast'), ('Giant'), ('PigZombie'), ('Skeleton'), ('Slime'), ('Spider'), ('Wolf'), ('Zombie')");
+				}
 			}
 			return true;
 		} catch (SQLException ex) {
@@ -529,6 +543,25 @@ public class LogBlock extends JavaPlugin
 			for (Block block : event.blockList())
 				consumer.queueBlock(name, block, block.getTypeId(), 0, block.getData());
 			}
+		}
+
+		@Override
+		public void onEntityDamage(EntityDamageEvent event) {
+			if (event.isCancelled())
+				return;
+			if (!(event instanceof EntityDamageByEntityEvent))
+				return;
+			if (!(event.getEntity() instanceof LivingEntity))
+				return;
+			LivingEntity victim = (LivingEntity)event.getEntity();
+			Entity killer = ((EntityDamageByEntityEvent)event).getDamager();
+			if (!(victim instanceof Player) && !(killer instanceof Player)) //Neither victim nor killer are players
+				return;
+			if (victim.getHealth() - event.getDamage() > 0) //Victim survives the damage
+				return;
+			if (victim.getHealth() <= 0 ) //Victim was alredy dead
+				return;
+			consumer.queueKill(killer, victim);
 		}
 	}
 
