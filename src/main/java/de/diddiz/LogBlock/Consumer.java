@@ -169,6 +169,16 @@ public class Consumer extends TimerTask
 			queueChestAccess(playerName, loc, type, (short)item.getTypeId(), (short)(item.getAmount() * -1), rawData(item));
 		queueBlockBreak(playerName, loc, type, data);
 	}
+	
+	/**
+	 * Logs a container block break. The block type before is assumed to be o (air). All content is assumed to be taken.
+	 */
+	public void queueContainerBreak(String playerName, Location loc, int type, byte data, ItemStack... stacks) {
+		stacks = compressInventory(stacks);
+		for (final ItemStack item : stacks)
+			queueChestAccess(playerName, loc, type, (short)item.getTypeId(), (short)(item.getAmount() * -1), rawData(item));
+		queueBlockBreak(playerName, loc, type, data);
+	}
 
 	/**
 	 * @param killer

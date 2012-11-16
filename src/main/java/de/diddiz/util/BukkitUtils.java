@@ -40,11 +40,12 @@ public class BukkitUtils
 		blockEquivalents.add(new HashSet<Integer>(Arrays.asList(75, 76)));
 		blockEquivalents.add(new HashSet<Integer>(Arrays.asList(93, 94)));
 
-		relativeBreakable = new HashSet<Integer>(2);
+		relativeBreakable = new HashSet<Integer>(5);
 		relativeBreakable.add(63); // Sign
 		relativeBreakable.add(68); // Sign
 		relativeBreakable.add(65); // Ladder
 		relativeBreakable.add(77); // Button
+		relativeBreakable.add(389); // Item Frames
 
 		relativeTopBreakable = new HashSet<Integer>(19);
 		relativeTopBreakable.add(6);   ////Vegetation start////
@@ -265,6 +266,34 @@ public class BukkitUtils
 			return true;
 		}
 		return false;
+	}
+	
+	public static byte BlockFaceToRotationByte(BlockFace face) {
+		switch (face) {
+		case NORTH:
+			return 0;
+		case WEST:
+			return 1;
+		case SOUTH:
+			return 2;
+		case EAST:
+			return 3;
+		}
+		return 0;
+	}
+	
+	public static BlockFace RotationByteToBlockFace(byte direction) {
+		switch (direction) {
+		case 0:
+			return BlockFace.NORTH;
+		case 1:
+			return BlockFace.WEST;
+		case 2:
+			return BlockFace.SOUTH;
+		case 3:
+			return BlockFace.EAST;
+		}
+		return BlockFace.NORTH;
 	}
 
 	public static class ItemStackComparator implements Comparator<ItemStack>

@@ -14,12 +14,19 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
+
+import net.minecraft.server.EntityItemFrame;
+import net.minecraft.server.EntityPainting;
+
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Bed;
@@ -136,6 +143,29 @@ public class WorldEditor implements Runnable
 			final BlockState state = block.getState();
 			if (!world.isChunkLoaded(block.getChunk()))
 				world.loadChunk(block.getChunk());
+			// Not a block, used for special stuff like paintings and the like
+			if (type > 255) {
+				if (type == Material.ITEM_FRAME.getId()) {
+					EntityItemFrame frame = new EntityItemFrame(((CraftWorld) loc.getWorld()).getHandle(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), data);
+					frame.setDirection(frame.direction);
+					if (!frame.survives()) {
+						return PerformResult.NO_ACTION;
+					}
+					((CraftWorld) loc.getWorld()).getHandle().addEntity(frame);
+					ItemFrame bukkitFrame = (ItemFrame) frame.getBukkitEntity();
+					return PerformResult.SUCCESS;
+					//TODO : replace the item
+				}
+				if(type == Material.PAINTING.getId()) {
+					EntityPainting painting = new EntityPainting(((CraftWorld) loc.getWorld()).getHandle(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), data);
+					painting.setDirection(painting.direction);
+					if (!painting.survives()) {
+						return PerformResult.NO_ACTION;
+					}
+					((CraftWorld) loc.getWorld()).getHandle().addEntity(painting);
+					return PerformResult.SUCCESS;
+				}
+			}
 			if (type == replaced) {
 				if (type == 0) {
 					if (!block.setTypeId(0))

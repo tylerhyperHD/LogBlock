@@ -4,11 +4,17 @@ import static de.diddiz.LogBlock.config.Config.getWorldConfig;
 import static de.diddiz.LogBlock.config.Config.isLogging;
 import java.util.List;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Hanging;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import de.diddiz.LogBlock.LogBlock;
 import de.diddiz.LogBlock.Logging;
@@ -40,12 +46,25 @@ public class BlockBreakLogging extends LoggingListener
 				if (BukkitUtils.getRelativeTopBreakabls().contains(event.getBlock().getRelative(BlockFace.UP).getTypeId())) {
 					consumer.queueBlockBreak(event.getPlayer().getName(), event.getBlock().getRelative(BlockFace.UP).getState());
 				}
-				List<Location> nearbySigns = BukkitUtils.getBlocksNearby(event.getBlock(), BukkitUtils.getRelativeBreakables());
-				if(nearbySigns.size() != 0) {
-					for(Location location : nearbySigns) {
+				List<Location> nearbyBreakables = BukkitUtils.getBlocksNearby(event.getBlock(), BukkitUtils.getRelativeBreakables());
+				if(nearbyBreakables.size() != 0) {
+					for(Location location : nearbyBreakables) {
 						int blockType = location.getBlock().getTypeId();
-						if (wcfg.isLogging(Logging.SIGNTEXT) && (blockType == 63 || type == 68))
+						if (wcfg.isLogging(Logging.SIGNTEXT) && (blockType == 63 || blockType == 68)) {
 							consumer.queueSignBreak(event.getPlayer().getName(), (Sign) location.getBlock().getState());
+						}
+						if (blockType == Material.ITEM_FRAME.getId()) {
+							Hanging hanging = null;
+							for (Entity entity : event.getPlayer().getNearbyEntities(8, 8, 8)) {
+								if (entity.getType() == EntityType.ITEM_FRAME && entity.getLocation().equals(location)) {
+									hanging = (ItemFrame) entity;
+									break;
+								}
+							}
+							if (hanging != null) {
+								HangingLogging.logHangingBreak(new HangingBreakByEntityEvent(hanging, event.getPlayer()));
+							}
+						}
 						consumer.queueBlockBreak(event.getPlayer().getName(), location.getBlock().getState());
 					}
 				}

@@ -40,6 +40,7 @@ import de.diddiz.LogBlock.listeners.ChestAccessLogging;
 import de.diddiz.LogBlock.listeners.EndermenLogging;
 import de.diddiz.LogBlock.listeners.ExplosionLogging;
 import de.diddiz.LogBlock.listeners.FluidFlowLogging;
+import de.diddiz.LogBlock.listeners.HangingLogging;
 import de.diddiz.LogBlock.listeners.InteractLogging;
 import de.diddiz.LogBlock.listeners.KillLogging;
 import de.diddiz.LogBlock.listeners.LeavesDecayLogging;
@@ -156,8 +157,10 @@ public class LogBlock extends JavaPlugin
 		pm.registerEvents(new ToolListener(this), this);
 		if (askRollbackAfterBan)
 			pm.registerEvents(new BanListener(this), this);
-		if (isLogging(Logging.BLOCKPLACE))
+		if (isLogging(Logging.BLOCKPLACE)) {
 			pm.registerEvents(new BlockPlaceLogging(this), this);
+			pm.registerEvents(new HangingLogging(this), this);
+		}
 		if (isLogging(Logging.BLOCKPLACE) || isLogging(Logging.LAVAFLOW) || isLogging(Logging.WATERFLOW))
 			pm.registerEvents(new FluidFlowLogging(this), this);
 		if (isLogging(Logging.BLOCKBREAK))
