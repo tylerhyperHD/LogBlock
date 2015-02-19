@@ -14,6 +14,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import me.StevenLawson.TotalFreedomMod.TFM_AdminList;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitScheduler;
 
@@ -55,23 +56,22 @@ public class CommandsHandler implements CommandExecutor
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		try {
 			if (args.length == 0) {
-				sender.sendMessage(ChatColor.LIGHT_PURPLE + "LogBlock v" + logblock.getDescription().getVersion() + " by DiddiZ");
+				sender.sendMessage(ChatColor.LIGHT_PURPLE + "TotalFreedom LogBlock v" + logblock.getDescription().getVersion() + " by DiddiZ and tylerhyperHD");
 				sender.sendMessage(ChatColor.LIGHT_PURPLE + "Type /lb help for help");
 			} else {
 				final String command = args[0].toLowerCase();
 				if (command.equals("help")) {
-					sender.sendMessage(ChatColor.DARK_AQUA + "LogBlock Help:");
+					sender.sendMessage(ChatColor.DARK_AQUA + "TF LogBlock Help:");
 					sender.sendMessage(ChatColor.GOLD + "For the commands list type '/lb commands'");
 					sender.sendMessage(ChatColor.GOLD + "For the parameters list type '/lb params'");
 					sender.sendMessage(ChatColor.GOLD + "For the list of permissions you got type '/lb permissions'");
 				} else if (command.equals("commands")) {
-					sender.sendMessage(ChatColor.DARK_AQUA + "LogBlock Commands:");
+					sender.sendMessage(ChatColor.DARK_AQUA + "TF LogBlock Commands:");
 					sender.sendMessage(ChatColor.GOLD + "/lb tool -- Gives you the lb tool");
 					sender.sendMessage(ChatColor.GOLD + "/lb tool [on|off] -- Enables/Disables tool");
 					sender.sendMessage(ChatColor.GOLD + "/lb tool [params] -- Sets the tool lookup query");
 					sender.sendMessage(ChatColor.GOLD + "/lb tool default -- Sets the tool lookup query to default");
 					sender.sendMessage(ChatColor.GOLD + "/lb toolblock -- Analog to tool");
-					sender.sendMessage(ChatColor.GOLD + "/lb hide -- Hides you from log");
 					sender.sendMessage(ChatColor.GOLD + "/lb rollback [params] -- Rollback");
 					sender.sendMessage(ChatColor.GOLD + "/lb redo [params] -- Redo");
 					sender.sendMessage(ChatColor.GOLD + "/lb tp [params] -- Teleports you to the location of griefing");
@@ -82,7 +82,7 @@ public class CommandsHandler implements CommandExecutor
 					sender.sendMessage(ChatColor.GOLD + "/lb me -- Displays your stats");
 					sender.sendMessage(ChatColor.GOLD + "Look at github.com/LogBlock/LogBlock/wiki/Commands for the full commands reference");
 				} else if (command.equals("params")) {
-					sender.sendMessage(ChatColor.DARK_AQUA + "LogBlock Query Parameters:");
+					sender.sendMessage(ChatColor.DARK_AQUA + "TF LogBlock Query Parameters:");
 					sender.sendMessage(ChatColor.GOLD + "Use doublequotes to escape a keyword: world \"world\"");
 					sender.sendMessage(ChatColor.GOLD + "player [name1] <name2> <name3> -- List of players");
 					sender.sendMessage(ChatColor.GOLD + "block [type1] <type2> <type3> -- List of block types");
@@ -101,7 +101,7 @@ public class CommandsHandler implements CommandExecutor
 					sender.sendMessage(ChatColor.GOLD + "silent -- Displays lesser messages");
 				} else if (command.equals("permissions")) {
 					sender.sendMessage(ChatColor.DARK_AQUA + "You've got the following permissions:");
-					for (final String permission : new String[]{"me", "lookup", "tp", "rollback", "clearlog", "hide", "ignoreRestrictions", "spawnTools"})
+					for (final String permission : new String[]{"me", "lookup", "tp", "rollback", "ignoreRestrictions", "spawnTools"})
 						if (logblock.hasPermission(sender, "logblock." + permission))
 							sender.sendMessage(ChatColor.GOLD + "logblock." + permission);
 					for (final Tool tool : toolsByType.values())
@@ -186,17 +186,6 @@ public class CommandsHandler implements CommandExecutor
 							sender.sendMessage(ChatColor.RED + "You have to be a player.");
 					} else
 						sender.sendMessage(ChatColor.RED + "You aren't allowed to do this.");
-				} else if (command.equals("hide")) {
-					if (sender instanceof Player) {
-						if (logblock.hasPermission(sender, "logblock.hide")) {
-							if (Consumer.hide((Player)sender))
-								sender.sendMessage(ChatColor.GREEN + "You are now hidden and aren't logged. Type '/lb hide' again to unhide");
-							else
-								sender.sendMessage(ChatColor.GREEN + "You aren't hidden anylonger.");
-						} else
-							sender.sendMessage(ChatColor.RED + "You aren't allowed to do this.");
-					} else
-						sender.sendMessage(ChatColor.RED + "You have to be a player.");
 				} else if (command.equals("page")) {
 					if (args.length == 2 && isInt(args[1]))
 						showPage(sender, Integer.valueOf(args[1]));
@@ -258,14 +247,6 @@ public class CommandsHandler implements CommandExecutor
 						params.bct = BlockChangeType.ALL;
 						params.parseArgs(sender, argsToList(args, 1));
 						new CommandWriteLogFile(sender, params, true);
-					} else
-						sender.sendMessage(ChatColor.RED + "You aren't allowed to do this");
-				} else if (command.equals("clearlog")) {
-					if (logblock.hasPermission(sender, "logblock.clearlog")) {
-						final QueryParams params = new QueryParams(logblock, sender, argsToList(args, 1));
-						params.bct = BlockChangeType.ALL;
-						params.limit = -1;
-						new CommandClearLog(sender, params, true);
 					} else
 						sender.sendMessage(ChatColor.RED + "You aren't allowed to do this");
 				} else if (command.equals("tp")) {
@@ -626,14 +607,6 @@ public class CommandsHandler implements CommandExecutor
 				editor.start();
 				getSession(sender).lookupCache = editor.errors;
 				sender.sendMessage(ChatColor.GREEN + "Rollback finished successfully (" + editor.getElapsedTime() + " ms, " + editor.getSuccesses() + "/" + changes + " blocks" + (editor.getErrors() > 0 ? ", " + ChatColor.RED + editor.getErrors() + " errors" + ChatColor.GREEN : "") + (editor.getBlacklistCollisions() > 0 ? ", " + editor.getBlacklistCollisions() + " blacklist collisions" : "") + ")");
-				if (!params.silent && askClearLogAfterRollback && logblock.hasPermission(sender, "logblock.clearlog") && questioner != null && sender instanceof Player) {
-					Thread.sleep(1000);
-					if (questioner.ask((Player)sender, "Do you want to delete the rollbacked log?", "yes", "no").equals("yes")) {
-						params.silent = true;
-						new CommandClearLog(sender, params, false);
-					} else
-						sender.sendMessage(ChatColor.LIGHT_PURPLE + "Clearlog cancelled");
-				}
 			} catch (final Exception ex) {
 				sender.sendMessage(ChatColor.RED + "Exception, check error log");
 				getLogger().log(Level.SEVERE, "[Rollback] " + params.getQuery() + ": ", ex);

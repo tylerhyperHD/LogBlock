@@ -62,6 +62,8 @@ public class Config
 			worldNames.add(world.getName());
 		if (worldNames.isEmpty()) {
 			worldNames.add("world");
+                        worldNames.add("flatlands");
+                        worldNames.add("adminworld");
 			worldNames.add("world_nether");
 			worldNames.add("world_the_end");
 		}
@@ -84,7 +86,7 @@ public class Config
 		def.put("logging.logCreeperExplosionsAsPlayerWhoTriggeredThese", false);
 		def.put("logging.logKillsLevel", "PLAYERS");
 		def.put("logging.logEnvironmentalKills", false);
-		def.put("logging.logPlayerInfo", false);
+		def.put("logging.logPlayerInfo", true);
 		def.put("logging.hiddenPlayers", new ArrayList<String>());
 		def.put("logging.hiddenBlocks", Arrays.asList(0));
 		def.put("logging.ignoredChat", Arrays.asList("/register", "/login"));
@@ -177,7 +179,7 @@ public class Config
 		linesLimit = config.getInt("lookup.linesLimit", 1500);
 		askRollbacks = config.getBoolean("questioner.askRollbacks", true);
 		askRedos = config.getBoolean("questioner.askRedos", true);
-		askClearLogs = config.getBoolean("questioner.askClearLogs", true);
+		askClearLogs = config.getBoolean("questioner.askClearLogs", false);
 		askClearLogAfterRollback = config.getBoolean("questioner.askClearLogAfterRollback", true);
 		askRollbackAfterBan = config.getBoolean("questioner.askRollbackAfterBan", false);
 		safetyIdCheck = config.getBoolean("safety.id.check", true);

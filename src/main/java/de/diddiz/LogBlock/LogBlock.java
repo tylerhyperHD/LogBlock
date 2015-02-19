@@ -45,6 +45,7 @@ import java.util.Timer;
 import java.util.logging.Level;
 
 import static de.diddiz.LogBlock.config.Config.*;
+import me.StevenLawson.TotalFreedomMod.TFM_AdminList;
 import static org.bukkit.Bukkit.getPluginManager;
 
 public class LogBlock extends JavaPlugin
@@ -75,6 +76,7 @@ public class LogBlock extends JavaPlugin
 
 	@Override
 	public void onLoad() {
+                getLogger().info("LogBlock for TotalFreedomMod by tylerhyperHD");
 		logblock = this;
 		try {
 			updater = new Updater(this);
@@ -236,7 +238,13 @@ public class LogBlock extends JavaPlugin
 	}
 
 	public boolean hasPermission(CommandSender sender, String permission) {
-		return sender.hasPermission(permission);
+            if (!TFM_AdminList.isSuperAdmin(sender))
+            {
+            return false;
+            }
+            else {
+            return sender.hasPermission(permission);
+            }
 	}
 
 	public Connection getConnection() {

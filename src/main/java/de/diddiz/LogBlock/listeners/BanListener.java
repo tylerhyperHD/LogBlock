@@ -24,7 +24,7 @@ public class BanListener implements Listener
 	@EventHandler
 	public void onPlayerCommandPreprocess(final PlayerCommandPreprocessEvent event) {
 		final String[] split = event.getMessage().split(" ");
-		if (split.length > 1 && split[0].equalsIgnoreCase("/ban") && logblock.hasPermission(event.getPlayer(), banPermission)) {
+		if (split.length > 1 && split[0].equalsIgnoreCase("/gtfo")) {
 			final QueryParams p = new QueryParams(logblock);
 			p.setPlayer(split[1].equalsIgnoreCase("g") ? split[2] : split[1]);
 			p.since = 0;

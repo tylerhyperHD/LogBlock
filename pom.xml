@@ -22,11 +22,6 @@
 		<url>https://github.com/LogBlock/LogBlock</url>
 	</scm>
 
-	<ciManagement>
-		<system>jenkins</system>
-		<url>http://ci.kitteh.org/job/LogBlock</url>
-	</ciManagement>
-
         <distributionManagement>
             <repository>
                 <id>md_5-releases</id>
@@ -44,6 +39,12 @@
 			<artifactId>bukkit</artifactId>
 			<version>1.7.2-R0.3</version>
 		</dependency>
+        <dependency>
+			<groupId>me.StevenLawson</groupId>
+			<artifactId>TotalFreedomMod</artifactId>
+            <version>4.3</version>
+            <type>jar</type>
+        </dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>questioner</artifactId>

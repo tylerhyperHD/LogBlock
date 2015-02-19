@@ -18,10 +18,8 @@ permissions:
       logblock.lookup: true
       logblock.rollback: true
       logblock.clearlog: true
-      logblock.hide: true
       logblock.tp: true
       logblock.me: true
-      logblock.ignoreRestrictions: true
       logblock.spawnTools: true
       logblock.tools.toolblock: true
       logblock.tools.tool: true
@@ -34,18 +32,12 @@ permissions:
   logblock.clearlog:
      description: 'Allows clearing of the logs via /lb clearlog'
      default: op
-  logblock.hide:
-    description: 'Allows hiding players from logging'
-    default: op
   logblock.tp:
     description: 'Allows the use of /lb tp'
     default: op
   logblock.me:
     description: 'Allows seeing of your own stats with /lb me'
     default: true
-  logblock.ignoreRestrictions:
-    description: 'Allows to ignore the rollback restrictions rollback.maxTime and rollback.maxArea'
-    default: op
   logblock.spawnTools:
     description: 'Allows lookup tools to be spawned'
     default: true

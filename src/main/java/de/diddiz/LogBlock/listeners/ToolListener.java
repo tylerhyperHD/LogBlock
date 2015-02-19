@@ -50,7 +50,7 @@ public class ToolListener implements Listener
 				final ToolData toolData = getSession(player).toolData.get(tool);
 				if (behavior != ToolBehavior.NONE && toolData.enabled) {
 					if (!isLogged(player.getWorld())) {
-						player.sendMessage(ChatColor.RED + "This world is not currently logged.");
+						player.sendMessage(ChatColor.RED + "This world is not currently logged - Thats an error. Please contact a Developer to fix this.");
 						event.setCancelled(true);
 						return;
 					}
